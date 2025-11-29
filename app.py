@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from routes.alertas import alertas_bp
 import threading
@@ -10,6 +11,7 @@ def start_mqtt_client():
     mqtt_client.start()
 
 if __name__ == "__main__":
-    mqtt_thread = threading.Thread(target=start_mqtt_client)
-    mqtt_thread.start()
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        mqtt_thread = threading.Thread(target=start_mqtt_client)
+        mqtt_thread.start()
     app.run(debug=True)
