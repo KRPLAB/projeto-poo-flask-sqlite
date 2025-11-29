@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 
 
 from models.leitura import Leitura
-from models.alarme import Alarme
+from models.alarme import Alerta
 from database.leitura_dao import LeituraDAO
 from database.alarme_dao import AlarmeDAO
 from datetime import datetime
@@ -32,7 +32,7 @@ def processa_leitura(data: dict):
         print(f"Alerta! Leitura excedeu o limite: {leitura.valor}")
 
 def processa_alerta(data: dict):
-    alerta = Alarme(
+    alerta = Alerta(
         id=None,
         nivel_severidade=data["nivel_severidade"],
         mensagem=data["mensagem"],
