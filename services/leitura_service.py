@@ -12,9 +12,15 @@ def registrar_leitura(sensor_id: int, valor: float) -> Leitura | None:
         return leitura
     return None
 
-def listar_leituras() -> list[Leitura]:
-    return leitura_dao.listar()
+def listar_leituras_por_sensor(sensor_id: int) -> list[Leitura]:
+    return [l for l in leitura_dao.listar() if l.sensor_id == sensor_id]
 
 def obter_leitura_por_id(leitura_id: int) -> Leitura | None:
     return leitura_dao.obter_leitura_por_id(leitura_id)
+
+def remover_leitura(leitura_id: int, sensor_id: int) -> bool:
+    leitura = obter_leitura_por_id(leitura_id)
+    if leitura and leitura.sensor_id == sensor_id:
+        return leitura_dao.remover_leitura(leitura_id)
+    return False
 
