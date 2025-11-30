@@ -16,39 +16,33 @@ class SensorDAO:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             tipo TEXT NOT NULL,
             localizacao TEXT,
-            ativo INTEGER NOT NULL DEFAULT 1
+            status TEXT DEFAULT 'ativo',
+            dispositivo_uuid TEXT,
+            FOREIGN KEY(dispositivo_uuid) REFERENCES dispositivos(uuid)
         )
         """)
         conn.commit()
         conn.close()
 
     @staticmethod
-    def salvar(sensor: Sensor) -> int:
+    def salvar(sensor: Sensor) -> Sensor:
         conn = get_connection()
-        cur = conn
-        if sensor.id is None:
-            cur = conn.execute(
-                "INSERT INTO sensores (tipo, localizacao, ativo) VALUES (?, ?, ?)",
-                (sensor.tipo, sensor.localizacao, int(sensor.ativo))
-            )
-            sensor.id = cur.lastrowid
-        else:
-            conn.execute(
-                "UPDATE sensores SET tipo = ?, localizacao = ?, ativo = ? WHERE id = ?",
-                (sensor.tipo, sensor.localizacao, int(sensor.ativo), sensor.id)
-            )
+        cur = conn.execute(
+            "INSERT INTO sensores (tipo, localizacao, status, dispositivo_uuid) VALUES (?, ?, ?, ?)",
+            (sensor.tipo, sensor.localizacao, sensor.status, sensor.dispositivo_uuid)
+        )
+        sensor.id = cur.lastrowid
         conn.commit()
         conn.close()
         return sensor
 
     @staticmethod
     def listar() -> list[Sensor]:
-            conn = get_connection()
-            cur = conn.execute("SELECT * FROM sensores")
-            sensores = [Sensor(row['id'], row['tipo'], row['localizacao'], bool(
-                row['ativo'])) for row in cur.fetchall()]
-            conn.close()
-            return sensores
+        conn = get_connection()
+        cur = conn.execute("SELECT * FROM sensores")
+        sensores = [Sensor(row['id'], row['tipo'], row['localizacao'], row['status'], row['dispositivo_uuid']) for row in cur.fetchall()]
+        conn.close()
+        return sensores
     
     @staticmethod
     def obter_sensor_por_id(sensor_id: int) -> Sensor | None:
@@ -57,7 +51,7 @@ class SensorDAO:
         row = cur.fetchone()
         conn.close()
         if row:
-            return Sensor(row['id'], row['tipo'], row['localizacao'], bool(row['ativo']))
+            return Sensor(row['id'], row['tipo'], row['localizacao'], row['status'], row['dispositivo_uuid'])
         return None
 
     @staticmethod
@@ -72,8 +66,8 @@ class SensorDAO:
     def atualizar_sensor(sensor: Sensor) -> Sensor:
         conn = get_connection()
         conn.execute(
-            "UPDATE sensores SET tipo = ?, localizacao = ?, ativo = ? WHERE id = ?",
-            (sensor.tipo, sensor.localizacao, int(sensor.ativo), sensor.id)
+            "UPDATE sensores SET tipo = ?, localizacao = ?, status = ?, dispositivo_uuid = ? WHERE id = ?",
+            (sensor.tipo, sensor.localizacao, sensor.status, sensor.dispositivo_uuid, sensor.id)
         )
         conn.commit()
         conn.close()

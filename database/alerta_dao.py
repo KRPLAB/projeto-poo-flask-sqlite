@@ -4,18 +4,20 @@ from datetime import datetime
 
 # adiciona a pasta raiz do projeto ao PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.leitura import Leitura
+from models.alerta import Alerta
 from database.conexao import get_connection
 
-class LeituraDAO:
+
+class AlertaDAO:
     @staticmethod
     def criar_tabela():
         conn = get_connection()
         conn.execute("""
-        CREATE TABLE IF NOT EXISTS leituras (
+        CREATE TABLE IF NOT EXISTS alertas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sensor_id INTEGER NOT NULL,
-            valor REAL NOT NULL,
+            nivel TEXT NOT NULL,
+            mensagem TEXT,
             data_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
             resolvido INTEGER DEFAULT 0,
             FOREIGN KEY(sensor_id) REFERENCES sensores(id) ON DELETE CASCADE
@@ -25,56 +27,66 @@ class LeituraDAO:
         conn.close()
 
     @staticmethod
-    def salvar(leitura: Leitura) -> Leitura:
+    def salvar(alerta: Alerta) -> Alerta:
         conn = get_connection()
         cur = conn.execute(
-            "INSERT INTO leituras (sensor_id, valor, data_hora, resolvido) VALUES (?, ?, ?, ?)",
-            (leitura.sensor_id, leitura.valor, leitura.data_hora, int(leitura.resolvido))
+            "INSERT INTO alertas (sensor_id, nivel, mensagem, data_hora, resolvido) VALUES (?, ?, ?, ?, ?)",
+            (alerta.sensor_id, alerta.nivel, alerta.mensagem, alerta.data_hora, int(alerta.resolvido))
         )
-        leitura.id = cur.lastrowid
+        alerta.id = cur.lastrowid
         conn.commit()
         conn.close()
-        return leitura
-    
+        return alerta
+
     @staticmethod
-    def listar() -> list[Leitura]:
+    def listar() -> list[Alerta]:
         conn = get_connection()
-        cur = conn.execute("SELECT * FROM leituras")
-        leituras = [
-            Leitura(
+        cur = conn.execute("SELECT * FROM alertas")
+        alertas = [
+            Alerta(
                 id=row['id'],
                 sensor_id=row['sensor_id'],
-                valor=row['valor'],
+                nivel=row['nivel'],
+                mensagem=row['mensagem'],
                 data_hora=datetime.fromisoformat(row['data_hora']) if row['data_hora'] else None,
                 resolvido=bool(row['resolvido'])
             ) for row in cur.fetchall()
         ]
         conn.close()
-        return leituras
+        return alertas
     
     @staticmethod
-    def obter_leitura_por_id(leitura_id: int) -> Leitura | None:
+    def obter_alerta_por_id(alerta_id: int) -> Alerta | None:
         conn = get_connection()
-        cur = conn.execute("SELECT * FROM leituras WHERE id = ?", (leitura_id,))
+        cur = conn.execute("SELECT * FROM alertas WHERE id = ?", (alerta_id,))
         row = cur.fetchone()
         conn.close()
         if row:
-            return Leitura(
+            return Alerta(
                 id=row['id'],
                 sensor_id=row['sensor_id'],
-                valor=row['valor'],
+                nivel=row['nivel'],
+                mensagem=row['mensagem'],
                 data_hora=datetime.fromisoformat(row['data_hora']) if row['data_hora'] else None,
                 resolvido=bool(row['resolvido'])
             )
         return None
 
     @staticmethod
-    def atualizar(leitura: Leitura) -> Leitura:
+    def remover_alerta(alerta_id: int) -> bool:
+        conn = get_connection()
+        cur = conn.execute("DELETE FROM alertas WHERE id = ?", (alerta_id,))
+        conn.commit()
+        conn.close()
+        return cur.rowcount > 0
+        
+    @staticmethod
+    def atualizar(alerta: Alerta) -> Alerta:
         conn = get_connection()
         conn.execute(
-            "UPDATE leituras SET sensor_id = ?, valor = ?, data_hora = ?, resolvido = ? WHERE id = ?",
-            (leitura.sensor_id, leitura.valor, leitura.data_hora, int(leitura.resolvido), leitura.id)
+            "UPDATE alertas SET sensor_id = ?, nivel = ?, mensagem = ?, data_hora = ?, resolvido = ? WHERE id = ?",
+            (alerta.sensor_id, alerta.nivel, alerta.mensagem, alerta.data_hora, int(alerta.resolvido), alerta.id)
         )
         conn.commit()
         conn.close()
-        return leitura
+        return alerta

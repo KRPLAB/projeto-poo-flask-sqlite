@@ -1,27 +1,19 @@
+from datetime import datetime
+from uuid import uuid4
+
 class Dispositivo:
-    def __init__(self, id : int, mac_address : str, descricao : str, online : bool = False):
-        self.id = id
+    def __init__(self, mac_address: str, descricao: str = None, status: str = 'offline', criado_em: datetime = None, uuid: str = None):
+        self.uuid = uuid or str(uuid4())
         self.mac_address = mac_address
         self.descricao = descricao
-        self.online = online
-    
-    def conectar(self):
-        if not self.online:
-            self.online = True
-        else:
-            print(f'Dispositivo {self.id} já está conectado.')
-    
-    def desconectar(self):
-        if self.online:
-            self.online = False
-        else:
-            print(f'Dispositivo {self.id} já está desconectado.')
-    
+        self.status = status
+        self.criado_em = criado_em or datetime.now()
+
     def to_dict(self):
         return {
-            'id': self.id,
+            'uuid': self.uuid,
             'mac_address': self.mac_address,
             'descricao': self.descricao,
-            'online': self.online
+            'status': self.status,
+            'criado_em': self.criado_em.isoformat() if self.criado_em else None
         }
-       

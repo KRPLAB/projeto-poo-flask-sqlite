@@ -2,10 +2,10 @@ import json
 import paho.mqtt.client as mqtt
 
 
+from database.alerta_dao import AlertaDAO
 from models.leitura import Leitura
-from models.alarme import Alerta
+from models.alerta import Alerta
 from database.leitura_dao import LeituraDAO
-from database.alarme_dao import AlarmeDAO
 from datetime import datetime
 from dotenv import load_dotenv
 import os
@@ -37,7 +37,7 @@ def processa_alerta(data: dict):
         mensagem=data["mensagem"],
         ativo=data.get("ativo", True)
     )
-    AlarmeDAO.salvar(alerta)
+    AlertaDAO.salvar(alerta)
     print(f"Alerta salvo: {alerta}")
 
 
