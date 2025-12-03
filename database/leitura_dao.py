@@ -39,7 +39,7 @@ class LeituraDAO:
     @staticmethod
     def listar() -> list[Leitura]:
         conn = get_connection()
-        cur = conn.execute("SELECT * FROM leituras")
+        cur = conn.execute("SELECT * FROM leituras ORDER BY data_hora DESC")
         leituras = [
             Leitura(
                 id=row['id'],
@@ -53,9 +53,25 @@ class LeituraDAO:
         return leituras
     
     @staticmethod
-    def obter_leitura_por_id(leitura_id: int) -> Leitura | None:
+    def listar_por_sensor(sensor_id: int) -> list[Leitura]:
         conn = get_connection()
-        cur = conn.execute("SELECT * FROM leituras WHERE id = ?", (leitura_id,))
+        cur = conn.execute("SELECT * FROM leituras WHERE sensor_id = ? ORDER BY data_hora DESC", (sensor_id,))
+        leituras = [
+            Leitura(
+                id=row['id'],
+                sensor_id=row['sensor_id'],
+                valor=row['valor'],
+                data_hora=datetime.fromisoformat(row['data_hora']) if row['data_hora'] else None,
+                resolvido=bool(row['resolvido'])
+            ) for row in cur.fetchall()
+        ]
+        conn.close()
+        return leituras
+    
+    @staticmethod
+    def obter_leitura_por_id(sensor_id: int, leitura_id: int) -> Leitura | None:
+        conn = get_connection()
+        cur = conn.execute("SELECT * FROM leituras WHERE id = ? AND sensor_id = ?", (leitura_id, sensor_id))
         row = cur.fetchone()
         conn.close()
         if row:
@@ -69,12 +85,9 @@ class LeituraDAO:
         return None
 
     @staticmethod
-    def atualizar(leitura: Leitura) -> Leitura:
+    def remover_leitura(sensor_id: int, leitura_id: int) -> bool:
         conn = get_connection()
-        conn.execute(
-            "UPDATE leituras SET sensor_id = ?, valor = ?, data_hora = ?, resolvido = ? WHERE id = ?",
-            (leitura.sensor_id, leitura.valor, leitura.data_hora, int(leitura.resolvido), leitura.id)
-        )
+        cur = conn.execute("DELETE FROM leituras WHERE id = ? AND sensor_id = ?", (leitura_id, sensor_id))
         conn.commit()
         conn.close()
-        return leitura
+        return cur.rowcount > 0

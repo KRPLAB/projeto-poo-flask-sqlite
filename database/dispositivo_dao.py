@@ -51,6 +51,16 @@ class DispositivoDAO:
         if row:
             return Dispositivo(row['mac_address'], row['descricao'], row['status'], row['criado_em'], row['uuid'])
         return None
+    
+    @staticmethod
+    def obter_dispositivo_por_mac(mac_address: str) -> Dispositivo | None:
+        conn = get_connection()
+        cur = conn.execute("SELECT * FROM dispositivos WHERE mac_address = ?", (mac_address,))
+        row = cur.fetchone()
+        conn.close()
+        if row:
+            return Dispositivo(row['mac_address'], row['descricao'], row['status'], row['criado_em'], row['uuid'])
+        return None
         
     @staticmethod
     def remover_dispositivo(dispositivo_uuid: str) -> bool:

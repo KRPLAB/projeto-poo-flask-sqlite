@@ -5,26 +5,20 @@ class LeituraService:
     def __init__(self, leitura_dao: LeituraDAO = LeituraDAO()):
         self.leitura_dao = leitura_dao
 
-    def registrar_leitura(self, data: dict) -> Leitura:
+    def registrar_leitura(self, dispositivo_uuid: str, sensor_id: int, data: dict) -> Leitura:
         leitura = Leitura(
             id=None,
-            sensor_id=data['sensor_id'],
+            sensor_id=sensor_id,
             valor=data['valor'],
             resolvido=data.get('resolvido', False)
         )
         return self.leitura_dao.salvar(leitura)
 
-    def listar_leituras(self) -> list[Leitura]:
-        return self.leitura_dao.listar()
+    def listar_leituras(self, dispositivo_uuid: str, sensor_id: int) -> list[Leitura]:
+        return self.leitura_dao.listar_por_sensor(sensor_id)
 
-    def obter_leitura_por_id(self, leitura_id: int) -> Leitura | None:
-        return self.leitura_dao.obter_leitura_por_id(leitura_id)
+    def obter_leitura_por_id(self, dispositivo_uuid: str, sensor_id: int, leitura_id: int) -> Leitura | None:
+        return self.leitura_dao.obter_leitura_por_id(sensor_id, leitura_id)
 
-    def atualizar_leitura(self, leitura_id: int, data: dict) -> Leitura | None:
-        leitura = self.obter_leitura_por_id(leitura_id)
-        if leitura:
-            leitura.sensor_id = data.get('sensor_id', leitura.sensor_id)
-            leitura.valor = data.get('valor', leitura.valor)
-            leitura.resolvido = data.get('resolvido', leitura.resolvido)
-            return self.leitura_dao.atualizar(leitura)
-        return None
+    def remover_leitura(self, dispositivo_uuid: str, sensor_id: int, leitura_id: int) -> bool:
+        return self.leitura_dao.remover_leitura(sensor_id, leitura_id)

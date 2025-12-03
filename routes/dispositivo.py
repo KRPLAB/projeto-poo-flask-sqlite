@@ -26,7 +26,7 @@ def obter(uuid):
 def remover(uuid):
     sucesso = dispositivo_service.remover_dispositivo(uuid)
     if sucesso:
-        return jsonify({"message": "Dispositivo removido com sucesso"})
+        return "", 204
     return jsonify({"error": "Dispositivo não encontrado"}), 404
 
 @dispositivos_bp.put("/dispositivos/<uuid>")

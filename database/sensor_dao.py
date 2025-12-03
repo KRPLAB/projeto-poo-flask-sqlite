@@ -45,9 +45,17 @@ class SensorDAO:
         return sensores
     
     @staticmethod
-    def obter_sensor_por_id(sensor_id: int) -> Sensor | None:
+    def listar_por_dispositivo(dispositivo_uuid: str) -> list[Sensor]:
         conn = get_connection()
-        cur = conn.execute("SELECT * FROM sensores WHERE id = ?", (sensor_id,))
+        cur = conn.execute("SELECT * FROM sensores WHERE dispositivo_uuid = ?", (dispositivo_uuid,))
+        sensores = [Sensor(row['id'], row['tipo'], row['localizacao'], row['status'], row['dispositivo_uuid']) for row in cur.fetchall()]
+        conn.close()
+        return sensores
+    
+    @staticmethod
+    def obter_sensor_por_id(dispositivo_uuid: str, sensor_id: int) -> Sensor | None:
+        conn = get_connection()
+        cur = conn.execute("SELECT * FROM sensores WHERE id = ? AND dispositivo_uuid = ?", (sensor_id, dispositivo_uuid))
         row = cur.fetchone()
         conn.close()
         if row:
@@ -55,9 +63,9 @@ class SensorDAO:
         return None
 
     @staticmethod
-    def remover_sensor(sensor_id: int) -> bool:
+    def remover_sensor(dispositivo_uuid: str, sensor_id: int) -> bool:
         conn = get_connection()
-        cur = conn.execute("DELETE FROM sensores WHERE id = ?", (sensor_id,))
+        cur = conn.execute("DELETE FROM sensores WHERE id = ? AND dispositivo_uuid = ?", (sensor_id, dispositivo_uuid))
         conn.commit()
         conn.close()
         return cur.rowcount > 0
