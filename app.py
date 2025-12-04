@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 from routes.dispositivo import dispositivos_bp
 from routes.sensores import sensores_bp
 from routes.leitura import leituras_bp
@@ -12,6 +13,7 @@ import threading
 import mqtt.client as mqtt_client
 
 app = Flask(__name__)
+CORS(app)
 
 # Registrar blueprints
 app.register_blueprint(dispositivos_bp)
