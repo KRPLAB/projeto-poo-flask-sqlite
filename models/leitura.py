@@ -1,18 +1,15 @@
 from datetime import datetime
+from models.evento_sensor import EventoSensor
 
-class Leitura:
+class Leitura(EventoSensor):
+    """Representa uma leitura de sensor. Herda de EventoSensor."""
+    
     def __init__(self, id: int, sensor_id: int, valor: float, data_hora: datetime = None, resolvido: bool = False):
-        self.id = id
-        self.sensor_id = sensor_id
+        super().__init__(id, sensor_id, data_hora, resolvido)
         self.valor = valor
-        self.data_hora = data_hora or datetime.now()
-        self.resolvido = resolvido
 
     def to_dict(self):
-        return {
-            'id': self.id,
-            'sensor_id': self.sensor_id,
-            'valor': self.valor,
-            'data_hora': self.data_hora.isoformat() if self.data_hora else None,
-            'resolvido': self.resolvido
-        }
+        """Sobrescreve to_dict para incluir o valor da leitura."""
+        d = super().to_dict()
+        d['valor'] = self.valor
+        return d

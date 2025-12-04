@@ -1,4 +1,6 @@
-class Sensor:
+from models.base_model import BaseModel
+
+class Sensor(BaseModel):
     def __init__(self, id: int, tipo: str, localizacao: str = None, status: str = 'ativo', dispositivo_uuid: str = None):
         self.id = id
         self.tipo = tipo

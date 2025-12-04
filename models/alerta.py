@@ -1,23 +1,18 @@
 from datetime import datetime
+from models.evento_sensor import EventoSensor
 
-class Alerta:
+
+class Alerta(EventoSensor):
+    """Representa um evento de alerta de sensor. Herda de EventoSensor"""
+    
     def __init__(self, id: int, sensor_id: int, nivel: str, mensagem: str = None, data_hora: datetime = None, resolvido: bool = False):
-        self.id = id
-        self.sensor_id = sensor_id
+        super().__init__(id, sensor_id, data_hora, resolvido)
         self.nivel = nivel
         self.mensagem = mensagem
-        self.data_hora = data_hora or datetime.now()
-        self.resolvido = resolvido
-
-    def marcar_resolvido(self):
-        self.resolvido = True
     
     def to_dict(self):
-        return {
-            "id": self.id,
-            "sensor_id": self.sensor_id,
-            "nivel": self.nivel,
-            "mensagem": self.mensagem,
-            "data_hora": self.data_hora.isoformat() if self.data_hora else None,
-            "resolvido": self.resolvido
-        }
+        """Sobrescreve to_dict para incluir nível e mensagem do alerta."""
+        d = super().to_dict()
+        d['nivel'] = self.nivel
+        d['mensagem'] = self.mensagem
+        return d
