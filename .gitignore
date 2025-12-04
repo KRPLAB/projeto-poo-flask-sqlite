@@ -40,3 +40,5 @@ Thumbs.db
 instance/
 node_modules/
 .expo/
+frontapp/node_modules/
+frontapp/

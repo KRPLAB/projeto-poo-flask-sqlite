@@ -24,6 +24,18 @@ def obter(dispositivo_uuid, sensor_id, alerta_id):
         return jsonify(alerta.to_dict())
     return jsonify({"error": "Alerta não encontrado"}), 404
 
+@alertas_bp.patch("/dispositivos/<dispositivo_uuid>/sensores/<int:sensor_id>/alertas/<int:alerta_id>")
+def atualizar_status(dispositivo_uuid, sensor_id, alerta_id):
+    data = request.json
+    resolvido = data.get("resolvido")
+    if resolvido is None:
+        return jsonify({"error": "Campo 'resolvido' é obrigatório"}), 400
+
+    alerta = alerta_service.atualizar_status_alerta(dispositivo_uuid, sensor_id, alerta_id, resolvido)
+    if alerta:
+        return jsonify(alerta.to_dict())
+    return jsonify({"error": "Alerta não encontrado"}), 404
+
 @alertas_bp.delete("/dispositivos/<dispositivo_uuid>/sensores/<int:sensor_id>/alertas/<int:alerta_id>")
 def remover(dispositivo_uuid, sensor_id, alerta_id):
     sucesso = alerta_service.remover_alerta(dispositivo_uuid, sensor_id, alerta_id)

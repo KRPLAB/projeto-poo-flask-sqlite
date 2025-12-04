@@ -10,4 +10,4 @@ class BaseModel:
         Converte o modelo para dicionário.
         Deve ser implementado pelas subclasses.
         """
-        pass
+        raise NotImplementedError("Subclasses devem implementar o método to_dict()")

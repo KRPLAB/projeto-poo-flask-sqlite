@@ -23,3 +23,10 @@ class AlertaService:
 
     def remover_alerta(self, dispositivo_uuid: str, sensor_id: int, alerta_id: int) -> bool:
         return self.alerta_dao.remover_alerta(sensor_id, alerta_id)
+
+    def atualizar_status_alerta(self, dispositivo_uuid: str, sensor_id: int, alerta_id: int, resolvido: bool) -> Alerta | None:
+        alerta = self.alerta_dao.obter_alerta_por_id(sensor_id, alerta_id)
+        if alerta:
+            alerta.resolvido = resolvido
+            return self.alerta_dao.atualizar(alerta)
+        return None

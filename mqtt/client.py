@@ -116,10 +116,22 @@ def on_message(client, userdata, msg):
         if len(partes) == 4:
             id_dispositivo = partes[0]
             tipo = partes[2]
-            id_sensor = partes[3]
+            id_sensor_ou_tipo = partes[3]
             
-            # Extrai sensor_id do payload ou do tópico
-            sensor_id = data.get("sensor", int(id_sensor))
+            if "sensor" in data:
+                sensor_id = int(data["sensor"])
+            elif tipo == "leituras":
+                # Para leituras, tenta converter do tópico
+                try:
+                    sensor_id = int(id_sensor_ou_tipo)
+                except ValueError:
+                    print(f"Erro: ID do sensor inválido no tópico de leitura: {id_sensor_ou_tipo}")
+                    return
+            else:
+                # Para alertas, o sensor_id deve estar no payload
+                print(f"Erro: sensor_id não encontrado no payload para tópico de alerta")
+                return
+            
             data["sensor_id"] = sensor_id
             data["dispositivo_id"] = id_dispositivo
             
