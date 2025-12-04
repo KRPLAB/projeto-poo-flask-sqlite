@@ -22,3 +22,10 @@ class LeituraService:
 
     def remover_leitura(self, dispositivo_uuid: str, sensor_id: int, leitura_id: int) -> bool:
         return self.leitura_dao.remover_leitura(sensor_id, leitura_id)
+
+    def atualizar_status_leitura(self, dispositivo_uuid: str, sensor_id: int, leitura_id: int, resolvido: bool) -> Leitura | None:
+        leitura = self.leitura_dao.obter_leitura_por_id(sensor_id, leitura_id)
+        if leitura:
+            leitura.resolvido = resolvido
+            return self.leitura_dao.atualizar(leitura)
+        return None

@@ -90,6 +90,17 @@ class AlertaDAO:
         return None
 
     @staticmethod
+    def atualizar(alerta: Alerta) -> Alerta:
+        conn = get_connection()
+        conn.execute(
+            "UPDATE alertas SET sensor_id = ?, nivel = ?, mensagem = ?, data_hora = ?, resolvido = ? WHERE id = ?",
+            (alerta.sensor_id, alerta.nivel, alerta.mensagem, alerta.data_hora, int(alerta.resolvido), alerta.id)
+        )
+        conn.commit()
+        conn.close()
+        return alerta
+
+    @staticmethod
     def remover_alerta(sensor_id: int, alerta_id: int) -> bool:
         conn = get_connection()
         cur = conn.execute("DELETE FROM alertas WHERE id = ? AND sensor_id = ?", (alerta_id, sensor_id))

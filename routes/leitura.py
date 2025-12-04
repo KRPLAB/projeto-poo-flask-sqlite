@@ -24,6 +24,18 @@ def obter(dispositivo_uuid, sensor_id, leitura_id):
         return jsonify(leitura.to_dict())
     return jsonify({"error": "Leitura não encontrada"}), 404
 
+@leituras_bp.patch("/dispositivos/<dispositivo_uuid>/sensores/<int:sensor_id>/leituras/<int:leitura_id>")
+def atualizar_status(dispositivo_uuid, sensor_id, leitura_id):
+    data = request.json
+    resolvido = data.get("resolvido")
+    if resolvido is None:
+        return jsonify({"error": "Campo 'resolvido' é obrigatório"}), 400
+
+    leitura = leitura_service.atualizar_status_leitura(dispositivo_uuid, sensor_id, leitura_id, resolvido)
+    if leitura:
+        return jsonify(leitura.to_dict())
+    return jsonify({"error": "Leitura não encontrada"}), 404
+
 @leituras_bp.delete("/dispositivos/<dispositivo_uuid>/sensores/<int:sensor_id>/leituras/<int:leitura_id>")
 def remover(dispositivo_uuid, sensor_id, leitura_id):
     sucesso = leitura_service.remover_leitura(dispositivo_uuid, sensor_id, leitura_id)

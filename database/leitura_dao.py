@@ -85,6 +85,17 @@ class LeituraDAO:
         return None
 
     @staticmethod
+    def atualizar(leitura: Leitura) -> Leitura:
+        conn = get_connection()
+        conn.execute(
+            "UPDATE leituras SET sensor_id = ?, valor = ?, data_hora = ?, resolvido = ? WHERE id = ?",
+            (leitura.sensor_id, leitura.valor, leitura.data_hora, int(leitura.resolvido), leitura.id)
+        )
+        conn.commit()
+        conn.close()
+        return leitura
+
+    @staticmethod
     def remover_leitura(sensor_id: int, leitura_id: int) -> bool:
         conn = get_connection()
         cur = conn.execute("DELETE FROM leituras WHERE id = ? AND sensor_id = ?", (leitura_id, sensor_id))
