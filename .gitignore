@@ -38,3 +38,5 @@ Thumbs.db
 
 # Flask
 instance/
+node_modules/
+.expo/
